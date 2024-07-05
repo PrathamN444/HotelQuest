@@ -8,9 +8,9 @@ const RegisterPage = () => {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
 
-    function registerUser(ev){
+    async function registerUser(ev){
         ev.preventDefault();
-        axios.post("/register", {
+        await axios.post("/register", {
             name, email, password
         });
     }
@@ -42,7 +42,10 @@ const RegisterPage = () => {
                         className="m-2 p-2 border border-gray-500 rounded-2xl w-full"
                     />
                     <button className="bg-red-400 p-1 m-1 rounded-2xl text-white w-full">Create an account</button>
-                    <Link className="text-center py-2" to={"/login"}>Already have an account</Link>
+                    <div className="text-center py-3 text-gray-700">
+                        Already have an account , 
+                        <Link className="font-bold text-black" to={"/login"}> Login Here</Link>
+                    </div>
                 </form>
             </div>
         </div>
