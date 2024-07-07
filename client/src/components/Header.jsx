@@ -1,5 +1,6 @@
 import { useContext } from "react"
 import { UserContext } from "./UserContext";
+import { Link } from "react-router-dom";
 
 
 const Header = () => {
@@ -9,12 +10,12 @@ const Header = () => {
   return (
     <header className="flex items-center justify-between">
 
-        <a href="" className="flex items-center gap-1 pr-4">
+        <Link to={"/"} className="flex items-center gap-1 pr-4">
           <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-8 text-red-400">
             <path strokeLinecap="round" strokeLinejoin="round" d="m2.25 12 8.954-8.955c.44-.439 1.152-.439 1.591 0L21.75 12M4.5 9.75v10.125c0 .621.504 1.125 1.125 1.125H9.75v-4.875c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21h4.125c.621 0 1.125-.504 1.125-1.125V9.75M8.25 21h8.25" />
           </svg>
           <span className="font-bold text-lg text-red-500">HotelQuest</span>
-        </a>
+        </Link>
 
         <div className="flex items-center gap-3 border border-gray-300 rounded-full py-2 px-4 shadow-sm shadow-gray-300">
           <div className="font-bold">Anywhere</div>
@@ -29,7 +30,7 @@ const Header = () => {
           </button>
         </div>
 
-        <div className="flex items-center border border-gray-300 rounded-full shadow-sm shadow-gray-300 py-2 px-4 gap-2">
+        <Link to={user ? "/account" : "/login"}  className="flex items-center border border-gray-300 rounded-full shadow-sm shadow-gray-300 py-2 px-4 gap-2">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
             <path strokeLinecap="round" strokeLinejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5m-16.5 5.25h16.5" />
             </svg>
@@ -39,7 +40,7 @@ const Header = () => {
             {!!user && (
               <div>{user.name}</div>
             )}
-        </div>
+        </Link>
 
       </header>
   )

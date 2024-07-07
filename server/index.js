@@ -35,7 +35,6 @@ app.post("/register", async (req, res) => {
     }
     const hashed_password = await bcrypt.hash(password, salt);
     userDoc = await User.create({ name, email, password: hashed_password });
-    // res.json("registered successfully");
     sendCookie(userDoc, res);
 })
 
@@ -63,6 +62,10 @@ app.get("/profile",(req, res) => {
     else {
         res.json(null);
     }
+})
+
+app.post("/logout", (req, res) => {
+    res.cookie('token', '').json("logged out !");
 })
 
 app.listen(4000);
