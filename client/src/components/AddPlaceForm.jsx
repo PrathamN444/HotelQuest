@@ -1,36 +1,67 @@
+import axios from "axios";
+import { useState } from "react";
 
 
 const AddPlaceForm = () => {
+
+    const [title, setTitle] = useState('');
+    const [location, setLocation] = useState('');
+    const [addedPhotos, setAddedPhotos] = useState([]);
+    const [uploadLink, setUploadLink] = useState('');
+    const [description, setDescription] = useState('');
+    const [perks, setPerks] = useState([]);
+    const [otherInfo, setOtherInfo] = useState('');
+    const [checkIn, setCheckIn] = useState('');
+    const [checkOut, setCheckOut] = useState('');
+    const [maxGuests, setMaxGuests] = useState(1);
+
+    async function addPhotosByLink(ev){
+        ev.preventDefault();
+        const {data} = await axios.post("/upload-by-link", {link : uploadLink});
+        setAddedPhotos(prev => {
+            return [...prev, data];
+        });
+        setUploadLink('');
+    }
+
     return (
         <div>
             <form>
+
                 <h2 className="text-xl inline-block mr-1 mt-2">Title</h2>
                 <p className="text-gray-500 text-sm inline-block">( Your hotel name should be short and catchy to attarct people. )</p>
-                <input type="text" placeholder="Enter hotel name : (eg. Sunroof Residency)" 
+                <input type="text" placeholder="Enter hotel name : (eg. Sunroof Residency)" value={title} onChange={ev => setTitle(ev.target.value)}
                     className="m-2 p-2 ml-0 border border-gray-500 rounded-2xl w-full hover:shadow-md" 
                 />
+
                 <h2 className="text-xl inline-block mr-1 mt-2">Location</h2>
                 <p className="text-gray-500 text-sm inline-block">( Address to your place. )</p>
-                <input type="text" placeholder="Address" 
+                <input type="text" placeholder="Address" value={location} onChange={ev => setLocation(ev.target.value)}
                     className="m-2 p-2 ml-0 border border-gray-500 rounded-2xl w-full hover:shadow-md" 
                 />
+
                 <h2 className="text-xl inline-block mr-1 mt-2">Photos</h2>
                 <p className="inline-block text-sm text-gray-500">( more = better )</p>
                 <div className="flex gap-2">
-                    <input type="text" placeholder="Add photos using a link .....jpg" className="mt-2 p-2 ml-0 border border-gray-500 rounded-2xl w-full hover:shadow-md"/>
-                    <button className="bg-gray-300 border rounded-2xl px-4 hover:shadow-md">Add&nbsp;photo</button>
+                    <input type="text" value={uploadLink} onChange={ev => setUploadLink(ev.target.value)} placeholder="Add photos using a link .....jpg" className="mt-2 p-2 ml-0 border border-gray-500 rounded-2xl w-full hover:shadow-md"/>
+                    <button onClick={addPhotosByLink} className="bg-gray-300 border rounded-2xl px-4 hover:shadow-md">Add&nbsp;photo</button>
                 </div>
-                <div className="mt-2 grid grid-cols-3 md:grid-cols-6 lg:grid-cols-8">
+                <div className="mt-2 grid grid-cols-3 md:grid-cols-6 lg:grid-cols-8 gap-2">
                     <button className="border bg-transparent p-7 rounded-2xl text-gray-500 text-xl border-gray-500 hover:shadow-md flex items-center justify-center gap-2">
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="size-6">
                             <path fillRule="evenodd" d="M11.47 2.47a.75.75 0 0 1 1.06 0l4.5 4.5a.75.75 0 0 1-1.06 1.06l-3.22-3.22V16.5a.75.75 0 0 1-1.5 0V4.81L8.03 8.03a.75.75 0 0 1-1.06-1.06l4.5-4.5ZM3 15.75a.75.75 0 0 1 .75.75v2.25a1.5 1.5 0 0 0 1.5 1.5h13.5a1.5 1.5 0 0 0 1.5-1.5V16.5a.75.75 0 0 1 1.5 0v2.25a3 3 0 0 1-3 3H5.25a3 3 0 0 1-3-3V16.5a.75.75 0 0 1 .75-.75Z" clipRule="evenodd" />
                         </svg>
                         Upload
                     </button>
+                    {addedPhotos.length > 0 && addedPhotos.map((link,i) => (
+                        <img className="rounded-2xl" src={'http://localhost:4000/uploads/' + link} alt="" key={i}/>
+                    ))}
                 </div>
+
                 <h2 className="text-xl inline-block mr-1 mt-2">Description</h2>
                 <p className="inline-block text-sm text-gray-500">( Details about your place )</p>
-                <textarea className="m-2 p-2 ml-0 border border-gray-500 rounded-lg w-full hover:shadow-md size-auto" />
+                <textarea value={description} onChange={ev => setDescription(ev.target.value)} className="m-2 p-2 ml-0 border border-gray-500 rounded-lg w-full hover:shadow-md size-auto" />
+
                 <h2 className="text-xl inline-block mr-1 mt-2">Perks</h2>
                 <p className="inline-block text-sm text-gray-500">( select the benefits from below )</p>
                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 mt-2">
@@ -78,24 +109,27 @@ const AddPlaceForm = () => {
                         <span>Radio</span>
                     </label>
                 </div>
+
                 <h2 className="text-xl inline-block mr-1 mt-2">Other info</h2>
                 <p className="inline-block text-sm text-gray-500">( Rules and regulations for the stay )</p>
-                <textarea className="m-2 p-1 ml-0 border border-gray-500 rounded-lg w-full hover:shadow-md size-auto" />
+                <textarea value={otherInfo} onChange={ev => setOtherInfo(ev.target.value)} className="m-2 p-1 ml-0 border border-gray-500 rounded-lg w-full hover:shadow-md size-auto" />
+
                 <h2 className="text-xl inline-block mr-1 mt-2">Check in & Check out time</h2>
                 <div className="mt-2 grid grid-cols-3 gap-2">
                     <div className="flex flex-col gap-1">
                         <span>check in</span>
-                        <input type="text" placeholder="14:00 PM" className="border rounded-xl border-gray-500 p-1"/>
+                        <input type="text" value={checkIn} onChange={ev => setCheckIn(ev.target.value)} placeholder="14:00 PM" className="border rounded-xl border-gray-500 p-1"/>
                     </div>
                     <div className="flex flex-col gap-1">
                         <span>check out</span>
-                        <input type="text" placeholder="11:00 AM" className="border rounded-xl border-gray-500 p-1" />
+                        <input type="text" value={checkOut} onChange={ev => setCheckOut(ev.target.value)} placeholder="11:00 AM" className="border rounded-xl border-gray-500 p-1" />
                     </div>
                     <div className="flex flex-col gap-1">
                         <span>Max no of guests</span>
-                        <input type="text" placeholder="0" className="border rounded-xl border-gray-500 p-1"/>
+                        <input type="number" value={maxGuests} onChange={ev => setMaxGuests(ev.target.value)} placeholder="0" className="border rounded-xl border-gray-500 p-1"/>
                     </div>
                 </div>
+
                 <button className="bg-red-400 mt-8 mb-1 mx-auto py-2 px-10 rounded-full ">Add my place</button>
             </form>
         </div>

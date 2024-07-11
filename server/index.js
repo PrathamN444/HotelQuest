@@ -7,14 +7,25 @@ import { User } from "./model/user.js";
 import { sendCookie } from "./utils/feature.js";
 import cookieParser from "cookie-parser";
 import jwt from "jsonwebtoken";
+import imageDownloader from "image-downloader";
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 dotenv.config();
 const app = express();
 
+// const currentDir = ( typeof(__dirname) !== 'undefined' ) ? __dirname : process.cwd();
+// console.log(currentDir);
+
+const __filename = fileURLToPath(import.meta.url); // get the resolved path to the file
+const __dirname = path.dirname(__filename); // get the name of the directory
+// console.log({__dirname});
+
 const salt = await bcrypt.genSalt(10);
 
-app.use(cookieParser());
 app.use(express.json());
+app.use(cookieParser());
+app.use('/uploads', express.static(__dirname + '/uploads'));
 app.use(cors({
     credentials: true,
     "origin": "http://localhost:5173",
@@ -66,6 +77,17 @@ app.get("/profile",(req, res) => {
 
 app.post("/logout", (req, res) => {
     res.cookie('token', '').json("logged out !");
+})
+
+app.post("/upload-by-link", async (req, res) => {
+    const {link} = req.body;
+    const filename = 'photo' + Date.now() + '.jpg';
+    const pathToPhoto = __dirname + '/uploads/' + filename; 
+    await imageDownloader.image({
+        url : link,
+        dest : pathToPhoto,
+    })
+    res.json(filename);
 })
 
 app.listen(4000);
