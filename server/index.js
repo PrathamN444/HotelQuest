@@ -10,6 +10,8 @@ import jwt from "jsonwebtoken";
 import imageDownloader from "image-downloader";
 import path from 'path';
 import { fileURLToPath } from 'url';
+import multer from "multer";
+import fs from 'fs';
 
 dotenv.config();
 const app = express();
@@ -39,55 +41,99 @@ app.get("/test", (req, res) => {
 })
 
 app.post("/register", async (req, res) => {
-    const { name, email, password } = req.body;
-    let userDoc = await User.findOne({ email });
-    if (userDoc) {
-        return res.status(500).json("user already exists");
+    try{
+        const { name, email, password } = req.body;
+        let userDoc = await User.findOne({ email });
+        if (userDoc) {
+            return res.status(500).json("user already exists");
+        }
+        const hashed_password = await bcrypt.hash(password, salt);
+        userDoc = await User.create({ name, email, password: hashed_password });
+        sendCookie(userDoc, res);
     }
-    const hashed_password = await bcrypt.hash(password, salt);
-    userDoc = await User.create({ name, email, password: hashed_password });
-    sendCookie(userDoc, res);
+    catch(err){
+        console.log(err);
+    }
 })
 
 app.post("/login", async (req, res) => {
-    const { email, password } = req.body;
-    let userDoc = await User.findOne({ email });
-    if (!userDoc) {
-        return res.status(500).json("user don't exists");
+    try{
+        const { email, password } = req.body;
+        let userDoc = await User.findOne({ email });
+        if (!userDoc) {
+            return res.status(500).json("user don't exists");
+        }
+        const valid = await bcrypt.compare(password, userDoc.password);
+        if (!valid) {
+            return res.status(500).json("wrong email or password");
+        }
+        sendCookie(userDoc, res);
     }
-    const valid = await bcrypt.compare(password, userDoc.password);
-    if (!valid) {
-        return res.status(500).json("wrong email or password");
+    catch(err){
+        console.log(err);
     }
-    sendCookie(userDoc, res);
 })
 
 app.get("/profile",(req, res) => {
-    const {token} = req.cookies;
-    if (token) {
-        jwt.verify(token, process.env.SECRET_KEY, {}, (err, data) => {
-            if (err) throw err;
-            res.json(data);
-        });
+    try{
+        const {token} = req.cookies;
+        if (token) {
+            jwt.verify(token, process.env.SECRET_KEY, {}, (err, data) => {
+                if (err) throw err;
+                res.json(data);
+            });
+        }
+        else {
+            res.json(null);
+        }
     }
-    else {
-        res.json(null);
+    catch(err){
+        console.log(err);
     }
 })
 
 app.post("/logout", (req, res) => {
-    res.cookie('token', '').json("logged out !");
+    try{
+        res.cookie('token', '').json("logged out !");
+    }
+    catch(err) {
+        console.log(err);
+    }
 })
 
 app.post("/upload-by-link", async (req, res) => {
-    const {link} = req.body;
-    const filename = 'photo' + Date.now() + '.jpg';
-    const pathToPhoto = __dirname + '/uploads/' + filename; 
-    await imageDownloader.image({
-        url : link,
-        dest : pathToPhoto,
-    })
-    res.json(filename);
+    try {
+        const {link} = req.body;
+        const filename = 'photo' + Date.now() + '.jpg';
+        const pathToPhoto = __dirname + '/uploads/' + filename; 
+        await imageDownloader.image({
+            url : link,
+            dest : pathToPhoto,
+        })
+        res.json(filename);
+    } 
+    catch(error){
+        console.log(error);
+    }
+})
+
+const uploadPhotosMiddleware = multer({dest: "uploads/"});
+app.post("/upload", uploadPhotosMiddleware.array('photos', 100), (req, res) => {
+    try{
+        const uploadedPhotos = [];
+        for(let i=0; i<req.files.length; i++){
+            const {originalname, path, filename} = req.files[i];
+            const parts = originalname.split('.');
+            const ext = parts[parts.length - 1];
+            const newPath = path + '.' + ext;
+            fs.renameSync(path, newPath);
+            uploadedPhotos.push(filename + '.' + ext);
+        }
+        res.json(uploadedPhotos);
+    }
+    catch(err){
+        console.log(err);
+    }
 })
 
 app.listen(4000);
