@@ -1,14 +1,15 @@
 import { useContext, useState } from "react"
 import { UserContext } from "../components/UserContext"
-import { Navigate, Link, useParams } from "react-router-dom";
+import { Navigate, Link, useLocation } from "react-router-dom";
 import axios from "axios";
-import PlacesPage from "./PlacesPage";
 
 const AccoutPage = () => {
     const {user, ready, setUser} = useContext(UserContext);
     const [redirect, setRedirect] = useState(false);
 
-    let {subpage} = useParams();
+    const {pathname} = useLocation();
+    const subpage = pathname.split('/')?.[2];
+
 
     async function logoutUser() {
         await axios.post("/logout");
@@ -70,10 +71,9 @@ const AccoutPage = () => {
                     <button onClick={logoutUser} className="border rounded-full bg-red-400 text-white py-2 px-6 mt-3">Logout</button>
                 </div>
             )}
-
-            {subpage === 'places' && (
+            {/* {subpage === 'places' && (
                 <PlacesPage />
-            )}
+            )} */}
         </div>
     )
 }

@@ -12,6 +12,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import multer from "multer";
 import fs from 'fs';
+import { Place } from "./model/Places.js";
 
 dotenv.config();
 const app = express();
@@ -134,6 +135,68 @@ app.post("/upload", uploadPhotosMiddleware.array('photos', 100), (req, res) => {
     catch(err){
         console.log(err);
     }
+});
+
+app.post("/places", (req, res) => {
+    try{
+        const {token} = req.cookies;
+        const {title, location, addedPhotos, description, perks, otherInfo, checkIn, checkOut, maxGuests} = req.body;
+        if(token){
+            jwt.verify(token, process.env.SECRET_KEY, {}, async (err, data) => {
+                if(err) throw err;
+                const placeDoc = await Place.create({owner: data.id, title, address: location, photos: addedPhotos, description, perks, extraInfo: otherInfo, checkIn, checkOut, maxGuests});
+                res.json(placeDoc);
+            })
+        }
+    }
+    catch(err){
+        console.log(err);
+    }
 })
+
+app.get("/places", (req, res) => {
+    try{
+        const {token} = req.cookies;
+        if(token){
+            jwt.verify(token, process.env.SECRET_KEY, {}, async (err, userData) => {
+                if(err) throw err;
+                const {id} = userData;
+                const userDoc = await Place.find({owner : id});
+                res.json(userDoc);
+            })
+        }
+    }
+    catch(err){
+        console.log(err);
+    }
+})
+
+app.put("/places", (req, res) => {
+    try{
+        const {token} = req.cookies;
+        const {id, title, location, addedPhotos, description, perks, otherInfo, checkIn, checkOut, maxGuests} = req.body;
+        if(token){
+            jwt.verify(token, process.env.SECRET_KEY, {}, async (err, userData) => {
+                if(err) throw err;
+                const placeDoc = await Place.findById(id);
+                if(userData.id === placeDoc.owner.toHexString()){           // we can also toString()
+                    placeDoc.set({title, address: location, photos: addedPhotos, description, perks, extraInfo: otherInfo, checkIn, checkOut, maxGuests});
+                    await placeDoc.save();
+                }
+                res.json(placeDoc);
+            })
+        }
+    }
+    catch(err){
+        console.log(err);
+    }
+})
+
+app.get("/places/:id", async (req, res) => {
+    const {id} = req.params;
+    const placeDoc = await Place.findById(id);
+    res.json(placeDoc);
+})
+
 
 app.listen(4000);
