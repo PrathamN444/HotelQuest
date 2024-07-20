@@ -8,6 +8,7 @@ import { UserContextProvider } from "./components/UserContext";
 import AccoutPage from "./pages/AccoutPage";
 import AddPlaceForm from "./components/AddPlaceForm";
 import PlacesPage from "./pages/PlacesPage";
+import HotelPage from "./pages/HotelPage";
 
 
 axios.defaults.baseURL = "http://localhost:4000";
@@ -28,6 +29,7 @@ function App() {
           <Route path="/account/places/new" element={<AddPlaceForm/>} />
           <Route path="/account/places/:id" element={<AddPlaceForm/>} />
           <Route path="/account/booking" element={<AccoutPage/>} />
+          <Route path="/places/:id" element={<HotelPage />} /> 
         </Route>    
       </Routes>
     </UserContextProvider>

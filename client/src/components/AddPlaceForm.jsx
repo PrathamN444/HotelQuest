@@ -17,7 +17,9 @@ const AddPlaceForm = () => {
     const [checkIn, setCheckIn] = useState('');
     const [checkOut, setCheckOut] = useState('');
     const [maxGuests, setMaxGuests] = useState(1);
+    const [price, setPrice] = useState('');
     const [redirect, setRedirect] = useState('');
+
 
     useEffect(() => {
         if(id){
@@ -32,6 +34,7 @@ const AddPlaceForm = () => {
                 setCheckIn(data.checkIn);
                 setCheckOut(data.checkOut);
                 setMaxGuests(data.maxGuests);
+                setPrice(data.price);
             })
         }
         else{
@@ -76,7 +79,7 @@ const AddPlaceForm = () => {
 
     async function saveMyPlace(ev){
         ev.preventDefault();
-        const placeData = {title, location, addedPhotos, description, perks, otherInfo, checkIn, checkOut, maxGuests};
+        const placeData = {title, location, addedPhotos, description, perks, otherInfo, checkIn, checkOut, maxGuests, price};
         if(id){
             await axios.put("/places", {
                 id, ...placeData
@@ -216,7 +219,7 @@ const AddPlaceForm = () => {
                 <textarea value={otherInfo} onChange={ev => setOtherInfo(ev.target.value)} className="m-2 p-1 ml-0 border border-gray-500 rounded-lg w-full hover:shadow-md size-auto h-24" />
 
                 <h2 className="text-xl inline-block mr-1 mt-2">Check in & Check out time</h2>
-                <div className="mt-2 grid grid-cols-3 gap-2">
+                <div className="mt-2 grid grid-cols-4 gap-2">
                     <div className="flex flex-col gap-1">
                         <span>check in</span>
                         <input type="text" value={checkIn} onChange={ev => setCheckIn(ev.target.value)} placeholder="14:00 PM" className="border rounded-xl border-gray-500 p-1"/>
@@ -228,6 +231,10 @@ const AddPlaceForm = () => {
                     <div className="flex flex-col gap-1">
                         <span>Max no of guests</span>
                         <input type="number" value={maxGuests} onChange={ev => setMaxGuests(ev.target.value)} placeholder="0" className="border rounded-xl border-gray-500 p-1"/>
+                    </div>
+                    <div className="flex flex-col gap-1">
+                        <span>Price per day</span>
+                        <input type="text" value={price} onChange={ev => setPrice(ev.target.value)} placeholder="RS 2,500" className="border rounded-xl border-gray-500 p-1"/>
                     </div>
                 </div>
 

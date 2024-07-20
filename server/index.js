@@ -102,6 +102,7 @@ app.post("/logout", (req, res) => {
     }
 })
 
+
 app.post("/upload-by-link", async (req, res) => {
     try {
         const {link} = req.body;
@@ -140,11 +141,11 @@ app.post("/upload", uploadPhotosMiddleware.array('photos', 100), (req, res) => {
 app.post("/places", (req, res) => {
     try{
         const {token} = req.cookies;
-        const {title, location, addedPhotos, description, perks, otherInfo, checkIn, checkOut, maxGuests} = req.body;
+        const {title, location, addedPhotos, description, perks, otherInfo, checkIn, checkOut, maxGuests, price} = req.body;
         if(token){
             jwt.verify(token, process.env.SECRET_KEY, {}, async (err, data) => {
                 if(err) throw err;
-                const placeDoc = await Place.create({owner: data.id, title, address: location, photos: addedPhotos, description, perks, extraInfo: otherInfo, checkIn, checkOut, maxGuests});
+                const placeDoc = await Place.create({owner: data.id, title, address: location, photos: addedPhotos, description, perks, extraInfo: otherInfo, checkIn, checkOut, maxGuests, price});
                 res.json(placeDoc);
             })
         }
@@ -154,7 +155,7 @@ app.post("/places", (req, res) => {
     }
 })
 
-app.get("/places", (req, res) => {
+app.get("/user-places", (req, res) => {
     try{
         const {token} = req.cookies;
         if(token){
@@ -174,13 +175,13 @@ app.get("/places", (req, res) => {
 app.put("/places", (req, res) => {
     try{
         const {token} = req.cookies;
-        const {id, title, location, addedPhotos, description, perks, otherInfo, checkIn, checkOut, maxGuests} = req.body;
+        const {id, title, location, addedPhotos, description, perks, otherInfo, checkIn, checkOut, maxGuests, price} = req.body;
         if(token){
             jwt.verify(token, process.env.SECRET_KEY, {}, async (err, userData) => {
                 if(err) throw err;
                 const placeDoc = await Place.findById(id);
                 if(userData.id === placeDoc.owner.toHexString()){           // we can also toString()
-                    placeDoc.set({title, address: location, photos: addedPhotos, description, perks, extraInfo: otherInfo, checkIn, checkOut, maxGuests});
+                    placeDoc.set({title, address: location, photos: addedPhotos, description, perks, extraInfo: otherInfo, checkIn, checkOut, maxGuests, price});
                     await placeDoc.save();
                 }
                 res.json(placeDoc);
@@ -196,6 +197,16 @@ app.get("/places/:id", async (req, res) => {
     const {id} = req.params;
     const placeDoc = await Place.findById(id);
     res.json(placeDoc);
+})
+
+app.get("/places", async (req, res) => {
+    try{
+        const placeDoc = await Place.find();
+        res.json(placeDoc);
+    }
+    catch(err){
+        console.log(err);
+    }
 })
 
 
