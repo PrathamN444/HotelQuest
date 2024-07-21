@@ -71,9 +71,6 @@ const AccoutPage = () => {
                     <button onClick={logoutUser} className="border rounded-full bg-red-400 text-white py-2 px-6 mt-3">Logout</button>
                 </div>
             )}
-            {/* {subpage === 'places' && (
-                <PlacesPage />
-            )} */}
         </div>
     )
 }

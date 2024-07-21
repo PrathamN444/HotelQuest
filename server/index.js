@@ -13,6 +13,7 @@ import { fileURLToPath } from 'url';
 import multer from "multer";
 import fs from 'fs';
 import { Place } from "./model/Places.js";
+import { Booking } from "./model/Booking.js";
 
 dotenv.config();
 const app = express();
@@ -203,6 +204,39 @@ app.get("/places", async (req, res) => {
     try{
         const placeDoc = await Place.find();
         res.json(placeDoc);
+    }
+    catch(err){
+        console.log(err);
+    }
+})
+
+app.post("/booking", async (req, res) => {
+    try{
+        const {token} = req.cookies;
+        if(token){
+            jwt.verify(token, process.env.SECRET_KEY, {}, async (err, userDoc) => {
+                if(err) throw err;
+                const {checkIn, checkOut, numberOfGuests, name, phoneNo, totalPrice, place} = req.body;
+                const BookingDoc = await Booking.create({checkIn, checkOut, numberOfGuests, name, phoneNo, totalPrice, place, user: userDoc.id});
+                res.json(BookingDoc);
+            })
+        }
+    }
+    catch(err){
+        console.log(err);
+    }
+});
+
+app.get("/bookings", (req, res) => {
+    try{
+        const {token} = req.cookies;
+        if(token){
+            jwt.verify(token, process.env.SECRET_KEY, {}, async (err, userDoc) => {
+                if(err) throw err;
+                const allBookings = await Booking.find({user : userDoc.id}).populate('place');
+                res.json(allBookings);
+            })
+        }
     }
     catch(err){
         console.log(err);
